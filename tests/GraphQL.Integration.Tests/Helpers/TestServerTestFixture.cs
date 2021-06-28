@@ -33,7 +33,6 @@ namespace GraphQL.Integration.Tests.Helpers
             var testServer = new TestServer(host);
             _testHttpClient = testServer.CreateClient();
             _testWebSocketClient = testServer.CreateWebSocketClient();
-           // _testWebSocketClient.SubProtocols.Add("graphql-ws");
             _testWebSocketClient.ConfigureRequest = r =>
             {
                 r.Headers["Sec-WebSocket-Protocol"] = "graphql-ws";
@@ -53,10 +52,7 @@ namespace GraphQL.Integration.Tests.Helpers
                     EndPoint = new Uri($"http://localhost:{Port}{endpoint}"),
                     UseWebSocketForQueriesAndMutations = requestsViaWebsocket
                 },
-                Serializer,_testHttpClient,(uri,token)=>
-                {
-                    return _testWebSocketClient.ConnectAsync(uri, token);
-                });
+                Serializer,_testHttpClient,(uri,token)=> _testWebSocketClient.ConnectAsync(uri, token));
         }
     }
 
