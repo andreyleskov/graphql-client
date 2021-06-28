@@ -8,6 +8,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
     {
         public TestServerSystemTextJson(ITestOutputHelper output, TestServerTestSystemTextFixture fixture) : base(output, fixture)
         {
+            fixture.Output = output;
         }
     }
 }

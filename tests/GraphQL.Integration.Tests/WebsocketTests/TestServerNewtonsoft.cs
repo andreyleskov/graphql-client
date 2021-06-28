@@ -8,6 +8,7 @@ namespace GraphQL.Integration.Tests.WebsocketTests
     {
         public TestServerNewtonsoft(ITestOutputHelper output, TestServerTestNewtonsoftFixture fixture) : base(output, fixture)
         {
+            fixture.Output = output;
         }
     }
 }

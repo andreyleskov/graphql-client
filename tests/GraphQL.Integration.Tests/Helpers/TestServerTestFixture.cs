@@ -6,9 +6,11 @@ using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL.Client.Serializer.SystemTextJson;
 using IntegrationTestServer;
+using MartinCostello.Logging.XUnit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
 namespace GraphQL.Integration.Tests.Helpers
 {
@@ -16,17 +18,27 @@ namespace GraphQL.Integration.Tests.Helpers
     {
         private HttpClient _testHttpClient;
         private WebSocketClient _testWebSocketClient;
-
+        public ITestOutputHelper Output { get; set; }
         public override async Task CreateServer()
         {
             var host =
                 new WebHostBuilder()
                     .UseStartup<Startup>()
-                    .ConfigureLogging((ctx, logging) => logging.SetMinimumLevel(LogLevel.Debug));
+                    .ConfigureLogging((ctx, logging) =>
+                    {
+                        logging.AddProvider(new XUnitLoggerProvider(Output, new XUnitLoggerOptions()));
+                        logging.SetMinimumLevel(LogLevel.Trace);
+                    });
 
-            var testServer = new Microsoft.AspNetCore.TestHost.TestServer(host);
+            var testServer = new TestServer(host);
             _testHttpClient = testServer.CreateClient();
             _testWebSocketClient = testServer.CreateWebSocketClient();
+           // _testWebSocketClient.SubProtocols.Add("graphql-ws");
+            _testWebSocketClient.ConfigureRequest = r =>
+            {
+                r.Headers["Sec-WebSocket-Protocol"] = "graphql-ws";
+            };
+
             Server = testServer.Host;
             await testServer.Host.StartAsync();
         }
